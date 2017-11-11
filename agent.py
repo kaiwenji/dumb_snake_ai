@@ -3,7 +3,7 @@ import random
 class agent:
     s = snake()
     valid_actions = ["up","down","right","left"]
-    def __init__(self, epsilon = 1, alpha = 0.5, tolerance = 0.01, learning = False):
+    def __init__(self, epsilon = 1, alpha = 0.6, tolerance = 0.001, learning = False):
         self.Q = dict()
         self.epsilon = epsilon
         self.alpha = alpha
@@ -47,21 +47,22 @@ class agent:
         return
     def get_reward(self,action):
         reward = 0
-        old_dist = abs(self.s.food[0] - self.s.queue[0][0]) + abs(self.s.food[1] - self.s.queue[0][1])
+        food = self.s.food
+        old_dist = abs(food[0] - self.s.queue[0][0]) + abs(food[1] - self.s.queue[0][1])
         res = self.s.run(action)
         if res == False:
             self.s.reset()
-            reward -= 20
+            reward -= 10
         elif res[1] == True:
-            reward += 5
+            reward += 30
             if self.reset() == False:
                 return False
         else:
             reward += 2
-        if old_dist > abs(self.s.food[0] - self.s.queue[0][0]) + abs(self.s.food[1] - self.s.queue[0][1]):
-            reward += 2
-        else:
-            reward -= 1
+            if old_dist > abs(food[0] - self.s.queue[0][0]) + abs(food[1] - self.s.queue[0][1]):
+                reward += 10
+            else:
+                reward -= 20
         return reward
     def update(self):
         state = self.build_state()          # Get current state
@@ -73,12 +74,15 @@ class agent:
         self.learn(state, action, reward)
         return True
     def load_memory(self):
-        file_object = open('test.txt')
         try:
-            all_the_text = file_object.read( )
-            self.Q = eval(all_the_text)
-        finally:
-            file_object.close( )
+            file_object = open('test.txt')
+            try:
+                all_the_text = file_object.read( )
+                self.Q = eval(all_the_text)
+            finally:
+                file_object.close()
+        except IOError:
+            self.Q = dict()
     def output(self):
         file_object = open('test.txt', 'w')
         file_object.write(str(self.Q))
@@ -86,7 +90,8 @@ class agent:
 
 def run():
     my_agent = agent(learning = True)
-    for i in range(2000000):
+    my_agent.load_memory()
+    for i in range(200000):
         my_agent.update()
     my_agent.output()
 if __name__ == '__main__':

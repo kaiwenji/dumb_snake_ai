@@ -54,13 +54,12 @@ class snake:
                 dir[i] = 3
         waypoint = None
         x_dist, y_dist = food[0] - x, food[1] - y
-        x_dist_abs, y_dist_abs = abs(x_dist), abs(y_dist)
-        if x_dist_abs > y_dist_abs:
+        if x_dist != 0:
             if x_dist < 0:
                 waypoint = "up"
             else:
                 waypoint = "down"
-        else:
+        if y_dist != 0:
             if y_dist < 0:
                 waypoint = "left"
             else:
